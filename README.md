@@ -1,6 +1,6 @@
 # dotfiles
 
-zsh + starship + atuin + fzf-tab 터미널 환경. Ubuntu/Debian 서버용. 한 줄로 설치.
+zsh + starship + atuin + fzf-tab 터미널 환경. Ubuntu/Debian 서버와 macOS. 한 줄로 설치.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
@@ -24,15 +24,17 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash
 ```
 
+macOS 는 Homebrew 가 먼저 깔려 있어야 한다 (없으면 스크립트가 안내 메시지 출력 후 종료). Homebrew 설치는 비밀번호 입력이 필요해서 사용자가 직접 해야 함.
+
 스크립트는 idempotent 하다. 하는 일:
 
 1. `~/dotfiles` 에 이 repo clone (이미 있으면 pull) 후 거기서 재실행
-2. sudo 가 되면 `apt install zsh git curl`. 안 되면 건너뜀
-3. fzf 최신 바이너리를 GitHub 릴리즈에서 `~/.local/bin` 에 설치 (apt 버전은 0.44 라 `fzf --zsh` 미지원)
-4. starship, atuin, zoxide 를 공식 설치 스크립트로 `~/.local/bin` 에 설치
+2. Linux: sudo 가 되면 `apt install zsh git curl`. 안 되면 건너뜀
+3. Linux: fzf 최신 바이너리를 GitHub 릴리즈에서 `~/.local/bin` 에 설치 (apt 버전은 0.44 라 `fzf --zsh` 미지원)
+4. Linux: starship, atuin, zoxide 를 공식 설치 스크립트로 `~/.local/bin` 에 설치. macOS: 2~4 대신 `brew install starship atuin zoxide fzf coreutils`
 5. zsh 플러그인 4개를 `~/.zsh/plugins/` 에 git clone
 6. `zshrc` → `~/.zshrc`, `starship.toml` → `~/.config/starship.toml` 복사. 기존 `.zshrc` 는 `.zshrc.bak.<ts>` 로 백업
-7. 로그인 셸을 zsh 로 변경 (sudo 있으면 `usermod -s`, 없으면 `chsh`)
+7. 로그인 셸을 zsh 로 변경 (Linux: sudo 있으면 `usermod -s`, 없으면 `chsh`. macOS: `chsh`, 보통 이미 zsh)
 
 ### 2. 검증
 
@@ -40,10 +42,10 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 
 ```bash
 export PATH="$HOME/.local/bin:$PATH"
-getent passwd "$USER" | cut -d: -f7          # → /usr/bin/zsh (또는 zsh 경로)
+getent passwd "$USER" | cut -d: -f7          # Linux → /usr/bin/zsh. macOS 는 dscl . -read /Users/$USER UserShell
 script -qc "zsh -ic 'echo RC_OK; exit'" /dev/null | grep -E "RC_OK|error|not found"   # RC_OK 만 나와야 함
 zsh -ic 'bindkey "^[[A"' 2>/dev/null         # → up-line-or-beginning-search
-zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories-first
+zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories-first (macOS 는 gls -AFlvh ...)
 for t in starship atuin zoxide fzf; do $t --version | head -1; done
 ```
 
@@ -72,6 +74,9 @@ export DATA_ROOT=/mnt/data
 | sudo 없고 zsh 도 없음 | | zsh 만 관리자에게 설치 요청. 나머지는 `~/.local/bin` 에 깔려서 동작 |
 | GitHub 접근 불가 서버 | | 접근되는 머신에서 `scp -r ~/dotfiles server:~/ && ssh server '~/dotfiles/setup-shell.sh'` |
 | 로그인 셸은 바뀌었는데 여전히 bash | 현재 세션은 안 바뀜 | `exec zsh` 또는 재접속 |
+| macOS: `Homebrew 필요` 로 종료 | brew 미설치 | 사용자에게 https://brew.sh 설치 명령 실행 요청 후 스크립트 재실행 |
+| macOS: `compinit: insecure directories` | brew site-functions 권한 | `compaudit \| xargs chmod g-w,o-w` |
+| macOS: `l` 이 `ls -AFlhG` 로 잡힘 | coreutils 미설치 | `brew install coreutils` 후 새 셸 |
 | 위 화살표가 prefix 검색을 안 함 | 옛 `.zshrc` 가 남아 있음 | `cmp ~/.zshrc ~/dotfiles/zshrc` 로 확인 후 스크립트 재실행 |
 
 ### 5. 설정을 바꾸고 싶을 때

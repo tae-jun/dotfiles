@@ -1,6 +1,16 @@
 # ~/.zshrc — managed by ~/dotfiles (setup-shell.sh)
+# Homebrew (macOS)
+for _b in /opt/homebrew/bin/brew /usr/local/bin/brew; do [ -x "$_b" ] && eval "$("$_b" shellenv)" && break; done
 export PATH="$HOME/.local/bin:$HOME/.atuin/bin:$HOME/.cargo/bin:$PATH"
 PLUG="$HOME/.zsh/plugins"
+
+# ls: GNU ls 가 있으면 사용 (macOS 는 coreutils 의 gls). 없으면 BSD ls 로 fallback
+if command -v gls >/dev/null; then _LS=gls; elif ls --version >/dev/null 2>&1; then _LS=ls; else _LS=; fi
+if [ -n "$_LS" ]; then
+  command -v gdircolors >/dev/null && eval "$(gdircolors -b)" || { command -v dircolors >/dev/null && eval "$(dircolors -b)"; }
+else
+  export CLICOLOR=1
+fi
 
 # ---------- history ----------
 HISTFILE=~/.zsh_history
@@ -19,12 +29,13 @@ bindkey '^[[F'    end-of-line
 
 # ---------- 완성 (completion) ----------
 fpath=("$PLUG/zsh-completions/src" $fpath)
+[ -n "${HOMEBREW_PREFIX:-}" ] && fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
 autoload -Uz compinit && compinit -d ~/.zcompdump
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'  # 대소문자 무시 + 부분매칭
 zstyle ':completion:*' menu no                      # fzf-tab 이 메뉴 담당
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
 zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'ls --color=always $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview "${_LS:+$_LS --color=always}${_LS:-ls -G} \$realpath"
 zstyle ':fzf-tab:*' switch-group '<' '>'
 source "$PLUG/fzf-tab/fzf-tab.plugin.zsh"
 
@@ -50,9 +61,15 @@ add-zle-hook-widget line-finish _transient_prompt_finish
 add-zsh-hook precmd _transient_prompt_restore
 
 # ---------- alias ----------
-alias l='ls -AFlvh --group-directories-first --color=auto'
-alias ll='ls -alhF --color=auto'
-alias la='ls -A --color=auto'
+if [ -n "$_LS" ]; then
+  alias l="$_LS -AFlvh --group-directories-first --color=auto"
+  alias ll="$_LS -alhF --color=auto"
+  alias la="$_LS -A --color=auto"
+else  # BSD ls
+  alias l='ls -AFlhG'
+  alias ll='ls -alhFG'
+  alias la='ls -AG'
+fi
 alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
