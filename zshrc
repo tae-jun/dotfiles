@@ -60,6 +60,17 @@ autoload -Uz add-zle-hook-widget add-zsh-hook
 add-zle-hook-widget line-finish _transient_prompt_finish
 add-zsh-hook precmd _transient_prompt_restore
 
+# ---------- ↑/↓: 입력한 prefix 로 시작하는 히스토리만 탐색 ----------
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search     # ↑
+bindkey '^[OA' up-line-or-beginning-search     # ↑ (application mode)
+bindkey '^[[B' down-line-or-beginning-search   # ↓
+bindkey '^[OB' down-line-or-beginning-search
+bindkey '^P'   up-line-or-beginning-search
+bindkey '^N'   down-line-or-beginning-search
+
 # ---------- alias ----------
 if [ -n "$_LS" ]; then
   alias l="$_LS -AFlvh --group-directories-first --color=auto"
