@@ -1,0 +1,38 @@
+# 단순한 한 줄 프롬프트. 호스트명 표시(서버 여러 개 오갈 때 구분용)
+add_newline = false
+format = "$username$hostname$directory$git_branch$git_status$python$conda$cmd_duration$line_break$character"
+
+[hostname]
+ssh_only = false
+format = "[$hostname](bold yellow) "
+
+[username]
+show_always = false
+
+[directory]
+truncation_length = 4
+style = "bold cyan"
+
+[git_branch]
+format = "[$branch]($style) "
+style = "purple"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "red"
+
+[python]
+format = "[${symbol}${version}( \\($virtualenv\\))]($style) "
+symbol = "py "
+
+[conda]
+format = "[$symbol$environment]($style) "
+symbol = "conda "
+
+[cmd_duration]
+min_time = 2000
+format = "[$duration](yellow) "
+
+[character]
+success_symbol = "[❯](bold green)"
+error_symbol = "[❯](bold red)"
