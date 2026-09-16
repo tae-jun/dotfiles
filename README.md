@@ -94,6 +94,7 @@ cd ~/dotfiles && git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[
 | 프롬프트 | starship | 호스트명 항상 표시 (서버 구분용) |
 | 히스토리 검색 | atuin | `Ctrl+R`. ↑ 는 atuin 에 안 넘김 |
 | ↑/↓ | zsh `up-line-or-beginning-search` | 입력한 prefix 로 시작하는 히스토리만 탐색 |
+| transient prompt | zle `line-finish` hook | 엔터 후 이전 프롬프트는 `❯` 한 줄로 축약 |
 | 인라인 히스토리 제안 | zsh-autosuggestions | `→` 또는 `Ctrl+Space` 로 수락 |
 | Tab 완성 UI | fzf-tab + fzf | 퍼지 선택 |
 | 대소문자 무시 완성 | zsh `matcher-list` | `cd doc<Tab>` → `Documents` |

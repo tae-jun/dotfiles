@@ -8,6 +8,8 @@ format = "[$hostname](bold yellow) "
 
 [username]
 show_always = false
+format = "[$user]($style)@"
+style_user = "bold yellow"
 
 [directory]
 truncation_length = 4

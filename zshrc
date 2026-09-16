@@ -41,16 +41,13 @@ command -v zoxide  >/dev/null && eval "$(zoxide init zsh)"
 command -v atuin   >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"   # Ctrl+R 만 atuin, ↑ 는 zsh 기본
 command -v starship>/dev/null && eval "$(starship init zsh)"
 
-# ---------- ↑/↓: 입력한 prefix 로 시작하는 히스토리만 탐색 ----------
-autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey '^[[A' up-line-or-beginning-search     # ↑
-bindkey '^[OA' up-line-or-beginning-search     # ↑ (application mode)
-bindkey '^[[B' down-line-or-beginning-search   # ↓
-bindkey '^[OB' down-line-or-beginning-search
-bindkey '^P'   up-line-or-beginning-search
-bindkey '^N'   down-line-or-beginning-search
+# ---------- transient prompt: 엔터 치면 이전 프롬프트는 ❯ 한 줄로 축약 ----------
+# starship 은 PROMPT 를 init 때 한 번만 세팅하므로 line-finish 에서 바꾸고 precmd 에서 복원
+_transient_prompt_finish() { _TP_SAVED=$PROMPT; PROMPT='%F{green}❯%f '; zle .reset-prompt }
+_transient_prompt_restore() { [[ -n $_TP_SAVED ]] && PROMPT=$_TP_SAVED }
+autoload -Uz add-zle-hook-widget add-zsh-hook
+add-zle-hook-widget line-finish _transient_prompt_finish
+add-zsh-hook precmd _transient_prompt_restore
 
 # ---------- alias ----------
 alias l='ls -AFlvh --group-directories-first --color=auto'
