@@ -104,7 +104,7 @@ for f in "$HOME"/.zshrc.bak.*; do   # 스크립트가 만든 백업만 삭제 (�
   [ -f "$f" ] || continue
   if head -1 "$f" | grep -q "managed by" || ! grep -vE '^\s*$|atuin' "$f" | grep -q .; then rm -f "$f"; fi
 done
-rm -f "$HOME"/.local/share/man/man1/zoxide-*.1
+rm -f "$HOME"/.local/share/man/man1/zoxide-*.1; find "$HOME/.local/share/man" -type d -empty -delete 2>/dev/null || true
 [ "$OS" = Darwin ] || { sudo -n true 2>/dev/null && [ "$(sort /etc/shells | uniq -d | wc -l)" -gt 0 ] && awk '!seen[$0]++' /etc/shells | sudo tee /etc/shells.new >/dev/null && sudo mv /etc/shells.new /etc/shells; } || true
 # ~/dotfiles: 커밋 안 한 변경이나 push 안 한 커밋이 없을 때만 삭제 (개발 중인 사본 보호)
 if [ -d "$HOME/dotfiles/.git" ] && git -C "$HOME/dotfiles" remote get-url origin 2>/dev/null | grep -q "tae-jun/dotfiles"; then
