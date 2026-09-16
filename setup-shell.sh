@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# zsh + starship + atuin + zoxide + fzf + gh + zsh plugins 셋업 (Ubuntu/Debian, macOS)
+# zsh + starship + atuin + zoxide + fzf + gh + zsh plugins(3) 셋업 (Ubuntu/Debian, macOS)
 # 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* 뿐.
 #
 #   curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
@@ -66,7 +66,6 @@ fi
 log "zsh plugins"
 clone(){ if [ -d "$PLUG/$2/.git" ]; then git -C "$PLUG/$2" pull -q --ff-only || true; else git clone -q --depth 1 "https://github.com/$1" "$PLUG/$2"; fi; }
 clone zsh-users/zsh-autosuggestions              zsh-autosuggestions
-clone Aloxaf/fzf-tab                             fzf-tab
 clone zdharma-continuum/fast-syntax-highlighting fast-syntax-highlighting
 clone zsh-users/zsh-completions                  zsh-completions
 
@@ -95,7 +94,7 @@ fi
 
 # ---------- 찌꺼기 정리 (이 스크립트 옛 버전 / 공식 설치기가 남긴 것) ----------
 log "cleanup"
-rm -rf "$HOME/.config/fish/conf.d/atuin.env.fish"
+rm -rf "$HOME/.config/fish/conf.d/atuin.env.fish" "$PLUG/fzf-tab"
 rmdir "$HOME/.config/fish/conf.d" "$HOME/.config/fish" 2>/dev/null || true
 for f in "$HOME/.bashrc" "$HOME/.profile" "$HOME/.bash_profile"; do
   [ -f "$f" ] && sed -i.tmp -e '/\.atuin\/bin\/env/d' -e '/atuin init bash/d' "$f" && rm -f "$f.tmp"

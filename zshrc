@@ -32,12 +32,9 @@ fpath=("$PLUG/zsh-completions/src" $fpath)
 [ -n "${HOMEBREW_PREFIX:-}" ] && fpath=("$HOMEBREW_PREFIX/share/zsh/site-functions" $fpath)
 autoload -Uz compinit && compinit -d ~/.zcompdump
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'  # 대소문자 무시 + 부분매칭
-zstyle ':completion:*' menu no                      # fzf-tab 이 메뉴 담당
+zstyle ':completion:*' menu select                  # 후보 여럿이면 화살표로 고르는 메뉴
 zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
-zstyle ':completion:*:descriptions' format '[%d]'
-zstyle ':fzf-tab:complete:cd:*' fzf-preview "${_LS:+$_LS --color=always}${_LS:-ls -G} \$realpath"
-zstyle ':fzf-tab:*' switch-group '<' '>'
-source "$PLUG/fzf-tab/fzf-tab.plugin.zsh"
+zstyle ':completion:*:descriptions' format '%F{yellow}[%d]%f'
 
 # ---------- 플러그인 ----------
 source "$PLUG/zsh-autosuggestions/zsh-autosuggestions.zsh"
@@ -59,6 +56,13 @@ _transient_prompt_restore() { [[ -n $_TP_SAVED ]] && PROMPT=$_TP_SAVED }
 autoload -Uz add-zle-hook-widget add-zsh-hook
 add-zle-hook-widget line-finish _transient_prompt_finish
 add-zsh-hook precmd _transient_prompt_restore
+
+# ---------- Tab → atuin 히스토리 검색 (입력 중인 글자가 초기 검색어), Shift+Tab → 일반 완성 ----------
+if (( $+widgets[atuin-search] )); then
+  bindkey '^I' atuin-search
+  bindkey '^[[Z' expand-or-complete
+  bindkey '?' self-insert        # atuin 이 빈 줄에서 '?' 치면 AI 모드 여는 걸 끔
+fi
 
 # ---------- ↑/↓: 입력한 prefix 로 시작하는 히스토리만 탐색 ----------
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search

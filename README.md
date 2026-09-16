@@ -1,6 +1,6 @@
 # dotfiles
 
-zsh + starship + atuin + fzf-tab 터미널 환경. Ubuntu/Debian 서버와 macOS. 한 줄로 설치, 찌꺼기 없음.
+zsh + starship + atuin 터미널 환경. Ubuntu/Debian 서버와 macOS. 한 줄로 설치, 찌꺼기 없음.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
@@ -33,10 +33,10 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 
 1. Linux: zsh/git/curl 없으면 apt 로 설치 (sudo 필요). macOS: `brew install starship atuin zoxide fzf gh coreutils`
 2. Linux: fzf, starship, atuin, zoxide, gh 를 GitHub 릴리즈 tarball 에서 받아 **바이너리만** `~/.local/bin` 에 설치. 공식 설치 스크립트는 안 씀 (rc 파일 건드리고 디렉토리 흩뿌림)
-3. zsh 플러그인 4개를 `~/.zsh/plugins/` 에 git clone
+3. zsh 플러그인 3개를 `~/.zsh/plugins/` 에 git clone
 4. `~/.zshrc`, `~/.config/starship.toml` 다운로드. 기존 `.zshrc` 가 이 repo 것이 아니면 `~/.zshrc.bak` 하나만 남김
 5. 로그인 셸을 zsh 로 (Linux: sudo 있으면 `usermod -s`, 없으면 `chsh`. macOS: `chsh`)
-6. 정리: 옛 버전/공식 설치기가 남긴 `~/.atuin`, fish 설정, `.bashrc`/`.profile` 의 atuin 줄, `.zshrc.bak.*`, zoxide man 페이지, `/etc/shells` 중복, 그리고 `~/dotfiles` (커밋·푸시 안 된 변경이 없을 때만)
+6. 정리: 옛 버전/공식 설치기가 남긴 `~/.atuin`, `~/.zsh/plugins/fzf-tab`, fish 설정, `.bashrc`/`.profile` 의 atuin 줄, `.zshrc.bak.*`, zoxide man 페이지, `/etc/shells` 중복, 그리고 `~/dotfiles` (커밋·푸시 안 된 변경이 없을 때만)
 7. gh 로그인 안 돼 있으면 `gh auth login` 실행
 
 ### 2. 남는 파일 (이게 전부)
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 | 경로 | 용도 |
 |---|---|
 | `~/.zshrc`, `~/.config/starship.toml` | 설정 |
-| `~/.zsh/plugins/` | zsh 플러그인 4개 |
+| `~/.zsh/plugins/` | zsh 플러그인 3개 (autosuggestions, fast-syntax-highlighting, completions) |
 | `~/.local/bin/{fzf,starship,atuin,zoxide,gh}` | 바이너리 (Linux. macOS 는 brew) |
 | `~/.zcompdump`, `~/.cache/starship`, `~/.cache/fsh` | 런타임 캐시 |
 | `~/.config/atuin/`, `~/.local/share/atuin/` | atuin 설정·히스토리 DB |
@@ -59,6 +59,7 @@ export PATH="$HOME/.local/bin:$PATH"
 getent passwd "$USER" | cut -d: -f7          # Linux → zsh 경로. macOS 는 dscl . -read /Users/$USER UserShell
 script -qc "zsh -ic 'echo RC_OK; exit'" /dev/null | grep -E "RC_OK|error|not found"   # RC_OK 만
 zsh -ic 'bindkey "^[[A"' 2>/dev/null         # → up-line-or-beginning-search
+zsh -ic 'bindkey "^I"' 2>/dev/null           # → atuin-search
 zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories-first (macOS 는 gls)
 for t in starship atuin zoxide fzf gh; do $t --version | head -1; done   # fzf 는 0.48 이상
 ls -d ~/.atuin ~/.config/fish ~/dotfiles 2>&1 | grep -v "No such"        # 아무것도 안 나와야 함
@@ -66,7 +67,7 @@ grep -c atuin ~/.bashrc ~/.profile                                        # 0
 ```
 
 - `zsh -ic` 는 tty 가 없어서 `can't change option: zle` 가 뜰 수 있다. 무시. tty 검증은 `script -qc` 로.
-- 실제 키 동작(↑ prefix 검색, transient prompt)을 검증하려면 pty 로 zsh 를 띄우고 pyte 로 렌더링해서 화면을 본다. `bindkey` 출력만 믿지 말 것. 과거에 바인딩은 있는데 zshrc 편집 사고로 섹션이 통째로 사라진 적이 있다.
+- 실제 키 동작(↑ prefix 검색, Tab→atuin, transient prompt)을 검증하려면 pty 로 zsh 를 띄우고 pyte 로 렌더링해서 화면을 본다. pty 에 TIOCSWINSZ 로 창 크기를 반드시 설정할 것 (안 하면 atuin TUI 가 아무것도 안 그림). `bindkey` 출력만 믿지 말 것. 과거에 바인딩은 있는데 zshrc 편집 사고로 섹션이 통째로 사라진 적이 있다.
 
 ### 4. 서버별 설정
 
@@ -112,12 +113,13 @@ git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{
 | 셸 | zsh | |
 | 프롬프트 | starship | `user@host dir` 한 줄 |
 | transient prompt | zle `line-finish` hook | 엔터 후 이전 프롬프트는 `❯` 한 줄로 축약 |
-| 히스토리 검색 | atuin | `Ctrl+R`. ↑ 는 atuin 에 안 넘김 |
+| 히스토리 검색 | atuin | **Tab** 또는 `Ctrl+R`. 입력 중인 글자가 초기 검색어. ↑ 는 atuin 에 안 넘김. `?` AI 모드는 꺼둠 |
 | ↑/↓ | zsh `up-line-or-beginning-search` | 입력한 prefix 로 시작하는 히스토리만 탐색 |
 | 인라인 히스토리 제안 | zsh-autosuggestions | `→` 또는 `Ctrl+Space` 로 수락 |
-| Tab 완성 UI | fzf-tab + fzf | 퍼지 선택 |
+| 완성 (파일명·명령어) | zsh 기본 메뉴 | **Shift+Tab**. Tab 은 atuin 이 씀 |
 | 대소문자 무시 완성 | zsh `matcher-list` | `cd doc<Tab>` → `Documents` |
 | 문법 하이라이트 | fast-syntax-highlighting | |
+| fzf | `Ctrl+T` 파일 고르기, `Alt+C` 디렉토리 이동 | |
 | 추가 completion | zsh-completions | |
 | cd 대체 | zoxide | `z <부분이름>` |
 | GitHub CLI | gh | 설치 끝에 자동 login |
