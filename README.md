@@ -58,8 +58,8 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 export PATH="$HOME/.local/bin:$PATH"
 getent passwd "$USER" | cut -d: -f7          # Linux → zsh 경로. macOS 는 dscl . -read /Users/$USER UserShell
 script -qc "zsh -ic 'echo RC_OK; exit'" /dev/null | grep -E "RC_OK|error|not found"   # RC_OK 만
-zsh -ic 'bindkey "^[[A"' 2>/dev/null         # → up-line-or-beginning-search
-zsh -ic 'bindkey "^I"' 2>/dev/null           # → atuin-search
+zsh -ic 'bindkey "^[[A"' 2>/dev/null         # → atuin-up-search
+zsh -ic 'bindkey "^I"' 2>/dev/null           # → expand-or-complete
 zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories-first (macOS 는 gls)
 for t in starship atuin zoxide fzf gh; do $t --version | head -1; done   # fzf 는 0.48 이상
 ls -d ~/.atuin ~/.config/fish ~/dotfiles 2>&1 | grep -v "No such"        # 아무것도 안 나와야 함
@@ -67,7 +67,7 @@ grep -c atuin ~/.bashrc ~/.profile                                        # 0
 ```
 
 - `zsh -ic` 는 tty 가 없어서 `can't change option: zle` 가 뜰 수 있다. 무시. tty 검증은 `script -qc` 로.
-- 실제 키 동작(↑ prefix 검색, Tab→atuin, transient prompt)을 검증하려면 pty 로 zsh 를 띄우고 pyte 로 렌더링해서 화면을 본다. pty 에 TIOCSWINSZ 로 창 크기를 반드시 설정할 것 (안 하면 atuin TUI 가 아무것도 안 그림). `bindkey` 출력만 믿지 말 것. 과거에 바인딩은 있는데 zshrc 편집 사고로 섹션이 통째로 사라진 적이 있다.
+- 실제 키 동작(↑→atuin, Tab 완성, transient prompt)을 검증하려면 pty 로 zsh 를 띄우고 pyte 로 렌더링해서 화면을 본다. pty 에 TIOCSWINSZ 로 창 크기를 반드시 설정할 것 (안 하면 atuin TUI 가 아무것도 안 그림). `bindkey` 출력만 믿지 말 것. 과거에 바인딩은 있는데 zshrc 편집 사고로 섹션이 통째로 사라진 적이 있다.
 
 ### 4. 서버별 설정
 
@@ -91,7 +91,7 @@ export DATA_ROOT=/mnt/data
 | macOS: `compinit: insecure directories` | brew site-functions 권한 | `compaudit \| xargs chmod g-w,o-w` |
 | macOS: `l` 이 `ls -AFlhG` 로 잡힘 | coreutils 미설치 | `brew install coreutils` 후 새 셸 |
 | 로그인 셸은 바뀌었는데 여전히 bash | 현재 세션은 안 바뀜 | `exec zsh` 또는 재접속 |
-| 위 화살표가 prefix 검색을 안 함 | 옛 `.zshrc` | 스크립트 재실행 후 `exec zsh` |
+| ↑ 가 atuin 을 안 띄움 | 옛 `.zshrc` | 스크립트 재실행 후 `exec zsh` |
 | `gh auth login` 이 안 뜸 | tty 없이 실행됨 | 직접 `gh auth login` |
 
 ### 6. 설정을 바꾸고 싶을 때
@@ -113,10 +113,10 @@ git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{
 | 셸 | zsh | |
 | 프롬프트 | starship | `user@host dir` 한 줄 |
 | transient prompt | zle `line-finish` hook | 엔터 후 이전 프롬프트는 `❯` 한 줄로 축약 |
-| 히스토리 검색 | atuin | **Tab** 또는 `Ctrl+R`. 입력 중인 글자가 초기 검색어. ↑ 는 atuin 에 안 넘김. `?` AI 모드는 꺼둠 |
-| ↑/↓ | zsh `up-line-or-beginning-search` | 입력한 prefix 로 시작하는 히스토리만 탐색 |
+| 히스토리 검색 | atuin | **↑** (입력한 글자로 시작하는 것만, prefix 모드) 또는 `Ctrl+R` (퍼지). `?` AI 모드는 꺼둠 |
+| ↓ / Ctrl+P / Ctrl+N | zsh `*-line-or-beginning-search` | atuin 안 거치는 prefix 탐색 |
 | 인라인 히스토리 제안 | zsh-autosuggestions | `→` 또는 `Ctrl+Space` 로 수락 |
-| 완성 (파일명·명령어) | zsh 기본 메뉴 | **Shift+Tab**. Tab 은 atuin 이 씀 |
+| 완성 (파일명·명령어) | zsh 기본 메뉴 | Tab |
 | 대소문자 무시 완성 | zsh `matcher-list` | `cd doc<Tab>` → `Documents` |
 | 문법 하이라이트 | fast-syntax-highlighting | |
 | fzf | `Ctrl+T` 파일 고르기, `Alt+C` 디렉토리 이동 | |

@@ -46,7 +46,9 @@ source "$PLUG/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"  # �
 # ---------- 도구 ----------
 command -v fzf     >/dev/null && source <(fzf --zsh)
 command -v zoxide  >/dev/null && eval "$(zoxide init zsh)"
-command -v atuin   >/dev/null && eval "$(atuin init zsh --disable-up-arrow)"   # Ctrl+R 만 atuin, ↑ 는 zsh 기본
+export ATUIN_SEARCH_MODE_SHELL_UP_KEY_BINDING=prefix   # ↑ 로 열면 입력한 글자로 *시작하는* 것만
+export ATUIN_FILTER_MODE_SHELL_UP_KEY_BINDING=global
+command -v atuin   >/dev/null && eval "$(atuin init zsh)"   # ↑ 와 Ctrl+R 둘 다 atuin
 command -v starship>/dev/null && eval "$(starship init zsh)"
 
 # ---------- transient prompt: 엔터 치면 이전 프롬프트는 ❯ 한 줄로 축약 ----------
@@ -57,22 +59,17 @@ autoload -Uz add-zle-hook-widget add-zsh-hook
 add-zle-hook-widget line-finish _transient_prompt_finish
 add-zsh-hook precmd _transient_prompt_restore
 
-# ---------- Tab → atuin 히스토리 검색 (입력 중인 글자가 초기 검색어), Shift+Tab → 일반 완성 ----------
-if (( $+widgets[atuin-search] )); then
-  bindkey '^I' atuin-search
-  bindkey '^[[Z' expand-or-complete
-  bindkey '?' self-insert        # atuin 이 빈 줄에서 '?' 치면 AI 모드 여는 걸 끔
-fi
+# ---------- atuin 잡동사니 ----------
+(( $+widgets[atuin-search] )) && bindkey '?' self-insert   # 빈 줄에서 '?' 치면 AI 모드 여는 걸 끔
 
-# ---------- ↑/↓: 입력한 prefix 로 시작하는 히스토리만 탐색 ----------
-autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
-zle -N up-line-or-beginning-search
+# ---------- ↑ → atuin (입력한 글자로 시작하는 히스토리만), ↓/Ctrl+P/Ctrl+N → zsh prefix 탐색 ----------
+# ↑ 는 atuin init 이 atuin-up-search 로 바인딩함. 검색 모드는 위 ATUIN_*_UP_KEY_BINDING env 로 prefix 고정
+autoload -Uz down-line-or-beginning-search up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-bindkey '^[[A' up-line-or-beginning-search     # ↑
-bindkey '^[OA' up-line-or-beginning-search     # ↑ (application mode)
+zle -N up-line-or-beginning-search
 bindkey '^[[B' down-line-or-beginning-search   # ↓
 bindkey '^[OB' down-line-or-beginning-search
-bindkey '^P'   up-line-or-beginning-search
+bindkey '^P'   up-line-or-beginning-search     # atuin 안 거치는 prefix 탐색이 필요할 때
 bindkey '^N'   down-line-or-beginning-search
 
 # ---------- alias ----------
