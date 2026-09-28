@@ -34,7 +34,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 1. Linux: zsh/git/curl 없으면 apt 로 설치 (sudo 필요). macOS: `brew install starship atuin zoxide fzf gh uv coreutils`
 2. Linux: fzf, starship, atuin, zoxide, gh, uv(+uvx) 를 GitHub 릴리즈 tarball 에서 받아 **바이너리만** `~/.local/bin` 에 설치. 공식 설치 스크립트는 안 씀 (rc 파일 건드리고 디렉토리 흩뿌림)
 3. zsh 플러그인 3개를 `~/.zsh/plugins/` 에 git clone
-4. `~/.zshrc`, `~/.config/starship.toml` 다운로드. 기존 `.zshrc` 가 이 repo 것이 아니면 `~/.zshrc.bak` 하나만 남김
+4. `~/.zshrc`, `~/.config/starship.toml`, `~/.tmux.conf` 다운로드. 기존 `.zshrc`/`.tmux.conf` 가 이 repo 것이 아니면 `.bak` 하나만 남김
 5. 로그인 셸을 zsh 로 (Linux: sudo 있으면 `usermod -s`, 없으면 `chsh`. macOS: `chsh`)
 6. 정리: 옛 버전/공식 설치기가 남긴 `~/.atuin`, `~/.zsh/plugins/fzf-tab`, fish 설정, `.bashrc`/`.profile` 의 atuin 줄, `.zshrc.bak.*`, zoxide man 페이지, `/etc/shells` 중복, 그리고 `~/dotfiles` (커밋·푸시 안 된 변경이 없을 때만)
 7. gh 로그인 안 돼 있으면 `gh auth login` 실행
@@ -44,7 +44,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 
 | 경로 | 용도 |
 |---|---|
-| `~/.zshrc`, `~/.config/starship.toml` | 설정 |
+| `~/.zshrc`, `~/.config/starship.toml`, `~/.tmux.conf` | 설정 |
 | `~/.zsh/plugins/` | zsh 플러그인 3개 (autosuggestions, fast-syntax-highlighting, completions) |
 | `~/.local/bin/{fzf,starship,atuin,zoxide,gh,uv,uvx}` | 바이너리 (Linux. macOS 는 brew) |
 | `~/.zcompdump`, `~/.cache/starship`, `~/.cache/fsh` | 런타임 캐시 |
@@ -53,7 +53,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 | `~/.config/gh/` | gh 인증 |
 | `~/.cache/uv/`, `~/.local/share/uv/` | uv 캐시, uv 가 설치한 Python/도구 (사용할 때 생김) |
 | `~/.terminfo/x/xterm-ghostty` | Ghostty 용 terminfo (서버에 없을 때만. xterm-256color 복사본) |
-| `~/.zshrc.bak` | 사용자가 직접 쓴 .zshrc 가 있었을 때만 |
+| `~/.zshrc.bak`, `~/.tmux.conf.bak` | 사용자가 직접 쓴 파일이 있었을 때만 |
 
 ### 3. 검증
 
@@ -101,7 +101,7 @@ export DATA_ROOT=/mnt/data
 
 ### 6. 설정을 바꾸고 싶을 때
 
-repo 를 clone 해서 `zshrc` 또는 `starship.toml` 을 수정하고 push. 커밋 전에 반드시 개인정보 검사:
+repo 를 clone 해서 `zshrc`, `starship.toml`, `tmux.conf` 를 수정하고 push. 커밋 전에 반드시 개인정보 검사:
 
 ```bash
 git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}|token|key"
@@ -130,9 +130,11 @@ git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{
 | GitHub CLI | gh | 설치 끝에 자동 login |
 | Python 패키지/버전 관리 | uv, uvx | `uv venv`, `uv pip`, `uv python install`, `uvx <도구>` |
 | alias | `l` = `ls -AFlvh --group-directories-first` | macOS 는 coreutils `gls` |
+| tmux | `~/.tmux.conf` | 트루컬러, ESC 지연 제거, 확장 키(Shift+Enter), OSC 52 클립보드, 마우스, 스크롤백 10만 줄, 번호 1부터, `\|`/`-` 분할·`c` 새 창은 현재 디렉토리, `r` 리로드. tmux 는 설치 안 함 (3.2 이상 필요) |
 
 ## 파일
 
 - `setup-shell.sh` — 설치 스크립트 (idempotent, 찌꺼기 정리 포함)
 - `zshrc` — `~/.zshrc` 로 설치됨
 - `starship.toml` — `~/.config/starship.toml` 로 설치됨
+- `tmux.conf` — `~/.tmux.conf` 로 설치됨

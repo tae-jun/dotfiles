@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # zsh + starship + atuin + zoxide + fzf + gh + uv + zsh plugins(3) 셋업 (Ubuntu/Debian, macOS)
-# 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* ~/.terminfo 뿐.
+# 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* ~/.terminfo ~/.tmux.conf 뿐.
 #
 #   curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
 #
@@ -79,6 +79,10 @@ if [ -f "$HOME/.zshrc" ] && ! head -1 "$HOME/.zshrc" | grep -q "managed by"; the
 fi
 fetch_cfg zshrc         > "$HOME/.zshrc"
 fetch_cfg starship.toml > "$HOME/.config/starship.toml"
+if [ -f "$HOME/.tmux.conf" ] && ! head -1 "$HOME/.tmux.conf" | grep -q "managed by"; then
+  cp "$HOME/.tmux.conf" "$HOME/.tmux.conf.bak" && echo "기존 .tmux.conf → ~/.tmux.conf.bak (직접 쓴 파일이라 보존)"
+fi
+fetch_cfg tmux.conf     > "$HOME/.tmux.conf"
 
 # ---------- terminfo: Ghostty 등 서버에 없는 TERM ----------
 # 없으면 zle 이 커서 위치를 잘못 계산해서 입력이 깨져 보임 (claude → claudeuud). xterm-256color 를 복사해 ~/.terminfo 에
