@@ -3,6 +3,8 @@
 for _b in /opt/homebrew/bin/brew /usr/local/bin/brew; do [ -x "$_b" ] && eval "$("$_b" shellenv)" && break; done
 export PATH="$HOME/.local/bin:$HOME/.atuin/bin:$HOME/.cargo/bin:$PATH"
 PLUG="$HOME/.zsh/plugins"
+# 서버에 terminfo 가 없는 TERM(예: xterm-ghostty)이면 입력이 깨지므로 xterm-256color 로 fallback
+infocmp "$TERM" >/dev/null 2>&1 || export TERM=xterm-256color
 
 # ls: GNU ls 가 있으면 사용 (macOS 는 coreutils 의 gls). 없으면 BSD ls 로 fallback
 if command -v gls >/dev/null; then _LS=gls; elif ls --version >/dev/null 2>&1; then _LS=ls; else _LS=; fi

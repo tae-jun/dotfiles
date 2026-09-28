@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # zsh + starship + atuin + zoxide + fzf + gh + zsh plugins(3) 셋업 (Ubuntu/Debian, macOS)
-# 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* 뿐.
+# 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* ~/.terminfo 뿐.
 #
 #   curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
 #
@@ -76,6 +76,13 @@ if [ -f "$HOME/.zshrc" ] && ! head -1 "$HOME/.zshrc" | grep -q "managed by"; the
 fi
 fetch_cfg zshrc         > "$HOME/.zshrc"
 fetch_cfg starship.toml > "$HOME/.config/starship.toml"
+
+# ---------- terminfo: Ghostty 등 서버에 없는 TERM ----------
+# 없으면 zle 이 커서 위치를 잘못 계산해서 입력이 깨져 보임 (claude → claudeuud). xterm-256color 를 복사해 ~/.terminfo 에
+if have tic && ! infocmp xterm-ghostty >/dev/null 2>&1; then
+  log "terminfo: xterm-ghostty (xterm-256color 기반)"
+  infocmp -x xterm-256color | sed '1,/^xterm-256color|/s/^xterm-256color|[^,]*,/xterm-ghostty|ghostty|Ghostty (fallback),/' | tic -x -o "$HOME/.terminfo" - 2>/dev/null || true
+fi
 
 # ---------- 로그인 셸 ----------
 zsh_path=$(command -v zsh)

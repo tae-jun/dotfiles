@@ -38,6 +38,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 5. 로그인 셸을 zsh 로 (Linux: sudo 있으면 `usermod -s`, 없으면 `chsh`. macOS: `chsh`)
 6. 정리: 옛 버전/공식 설치기가 남긴 `~/.atuin`, `~/.zsh/plugins/fzf-tab`, fish 설정, `.bashrc`/`.profile` 의 atuin 줄, `.zshrc.bak.*`, zoxide man 페이지, `/etc/shells` 중복, 그리고 `~/dotfiles` (커밋·푸시 안 된 변경이 없을 때만)
 7. gh 로그인 안 돼 있으면 `gh auth login` 실행
+8. `xterm-ghostty` terminfo 가 없으면 `~/.terminfo` 에 생성 (zsh 가 커서 위치를 못 잡아 입력이 깨지는 문제 방지)
 
 ### 2. 남는 파일 (이게 전부)
 
@@ -50,6 +51,7 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 | `~/.config/atuin/`, `~/.local/share/atuin/` | atuin 설정·히스토리 DB |
 | `~/.local/share/zoxide/` | zoxide DB |
 | `~/.config/gh/` | gh 인증 |
+| `~/.terminfo/x/xterm-ghostty` | Ghostty 용 terminfo (서버에 없을 때만. xterm-256color 복사본) |
 | `~/.zshrc.bak` | 사용자가 직접 쓴 .zshrc 가 있었을 때만 |
 
 ### 3. 검증
@@ -64,6 +66,7 @@ zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories
 for t in starship atuin zoxide fzf gh; do $t --version | head -1; done   # fzf 는 0.48 이상
 ls -d ~/.atuin ~/.config/fish ~/dotfiles 2>&1 | grep -v "No such"        # 아무것도 안 나와야 함
 grep -c atuin ~/.bashrc ~/.profile                                        # 0
+infocmp xterm-ghostty >/dev/null && echo TERMINFO_OK                       # TERMINFO_OK
 ```
 
 - `zsh -ic` 는 tty 가 없어서 `can't change option: zle` 가 뜰 수 있다. 무시. tty 검증은 `script -qc` 로.
@@ -93,6 +96,7 @@ export DATA_ROOT=/mnt/data
 | 로그인 셸은 바뀌었는데 여전히 bash | 현재 세션은 안 바뀜 | `exec zsh` 또는 재접속 |
 | ↑ 가 atuin 을 안 띄움 | 옛 `.zshrc` | 스크립트 재실행 후 `exec zsh` |
 | `gh auth login` 이 안 뜸 | tty 없이 실행됨 | 직접 `gh auth login` |
+| 입력이 깨짐 (`claude` → `claudeuud`) | 서버에 `$TERM` terminfo 없음 (Ghostty 등) | 스크립트 재실행 후 재접속. zshrc 도 없는 TERM 은 xterm-256color 로 fallback 함. 원본을 원하면 로컬에서 `infocmp -x xterm-ghostty \| ssh 서버 -- tic -x -` |
 
 ### 6. 설정을 바꾸고 싶을 때
 
