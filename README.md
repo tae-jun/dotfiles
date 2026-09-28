@@ -31,8 +31,8 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 
 스크립트는 idempotent 하다. 하는 일:
 
-1. Linux: zsh/git/curl 없으면 apt 로 설치 (sudo 필요). macOS: `brew install starship atuin zoxide fzf gh coreutils`
-2. Linux: fzf, starship, atuin, zoxide, gh 를 GitHub 릴리즈 tarball 에서 받아 **바이너리만** `~/.local/bin` 에 설치. 공식 설치 스크립트는 안 씀 (rc 파일 건드리고 디렉토리 흩뿌림)
+1. Linux: zsh/git/curl 없으면 apt 로 설치 (sudo 필요). macOS: `brew install starship atuin zoxide fzf gh uv coreutils`
+2. Linux: fzf, starship, atuin, zoxide, gh, uv(+uvx) 를 GitHub 릴리즈 tarball 에서 받아 **바이너리만** `~/.local/bin` 에 설치. 공식 설치 스크립트는 안 씀 (rc 파일 건드리고 디렉토리 흩뿌림)
 3. zsh 플러그인 3개를 `~/.zsh/plugins/` 에 git clone
 4. `~/.zshrc`, `~/.config/starship.toml` 다운로드. 기존 `.zshrc` 가 이 repo 것이 아니면 `~/.zshrc.bak` 하나만 남김
 5. 로그인 셸을 zsh 로 (Linux: sudo 있으면 `usermod -s`, 없으면 `chsh`. macOS: `chsh`)
@@ -46,11 +46,12 @@ curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.s
 |---|---|
 | `~/.zshrc`, `~/.config/starship.toml` | 설정 |
 | `~/.zsh/plugins/` | zsh 플러그인 3개 (autosuggestions, fast-syntax-highlighting, completions) |
-| `~/.local/bin/{fzf,starship,atuin,zoxide,gh}` | 바이너리 (Linux. macOS 는 brew) |
+| `~/.local/bin/{fzf,starship,atuin,zoxide,gh,uv,uvx}` | 바이너리 (Linux. macOS 는 brew) |
 | `~/.zcompdump`, `~/.cache/starship`, `~/.cache/fsh` | 런타임 캐시 |
 | `~/.config/atuin/`, `~/.local/share/atuin/` | atuin 설정·히스토리 DB |
 | `~/.local/share/zoxide/` | zoxide DB |
 | `~/.config/gh/` | gh 인증 |
+| `~/.cache/uv/`, `~/.local/share/uv/` | uv 캐시, uv 가 설치한 Python/도구 (사용할 때 생김) |
 | `~/.terminfo/x/xterm-ghostty` | Ghostty 용 terminfo (서버에 없을 때만. xterm-256color 복사본) |
 | `~/.zshrc.bak` | 사용자가 직접 쓴 .zshrc 가 있었을 때만 |
 
@@ -63,7 +64,7 @@ script -qc "zsh -ic 'echo RC_OK; exit'" /dev/null | grep -E "RC_OK|error|not fou
 zsh -ic 'bindkey "^[[A"' 2>/dev/null         # → atuin-up-search
 zsh -ic 'bindkey "^I"' 2>/dev/null           # → expand-or-complete
 zsh -ic 'alias l' 2>/dev/null                # → ls -AFlvh --group-directories-first (macOS 는 gls)
-for t in starship atuin zoxide fzf gh; do $t --version | head -1; done   # fzf 는 0.48 이상
+for t in starship atuin zoxide fzf gh uv uvx; do $t --version | head -1; done   # fzf 는 0.48 이상
 ls -d ~/.atuin ~/.config/fish ~/dotfiles 2>&1 | grep -v "No such"        # 아무것도 안 나와야 함
 grep -c atuin ~/.bashrc ~/.profile                                        # 0
 infocmp xterm-ghostty >/dev/null && echo TERMINFO_OK                       # TERMINFO_OK
@@ -127,6 +128,7 @@ git diff --cached | grep -niE "@|ssh |[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{
 | 추가 completion | zsh-completions | |
 | cd 대체 | zoxide | `z <부분이름>` |
 | GitHub CLI | gh | 설치 끝에 자동 login |
+| Python 패키지/버전 관리 | uv, uvx | `uv venv`, `uv pip`, `uv python install`, `uvx <도구>` |
 | alias | `l` = `ls -AFlvh --group-directories-first` | macOS 는 coreutils `gls` |
 
 ## 파일

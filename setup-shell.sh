@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# zsh + starship + atuin + zoxide + fzf + gh + zsh plugins(3) 셋업 (Ubuntu/Debian, macOS)
+# zsh + starship + atuin + zoxide + fzf + gh + uv + zsh plugins(3) 셋업 (Ubuntu/Debian, macOS)
 # 여러 번 실행해도 안전. 홈에 남기는 것: ~/.zshrc ~/.config/starship.toml ~/.zsh/plugins ~/.local/bin/* ~/.terminfo 뿐.
 #
 #   curl -fsSL https://raw.githubusercontent.com/tae-jun/dotfiles/main/setup-shell.sh | bash && exec zsh
@@ -22,11 +22,13 @@ fetch_cfg(){ if [ -f "$SRC_DIR/$1" ]; then cat "$SRC_DIR/$1"; else curl -fsSL "$
 
 # GitHub 릴리즈 최신 태그 (API 호출 없이 redirect 로)
 latest_tag(){ curl -fsSLI -o /dev/null -w '%{url_effective}' "https://github.com/$1/releases/latest" | sed 's|.*/tag/v\{0,1\}||'; }
-# tarball 에서 바이너리 하나만 꺼내 ~/.local/bin 에 설치
-install_bin(){ # name url
-  local tmp; tmp=$(mktemp -d)
-  curl -fsSL "$2" | tar xz -C "$tmp"
-  find "$tmp" -type f -name "$1" -perm -u+x | head -1 | xargs -I{} install -m755 {} "$LOCAL_BIN/$1"
+# tarball 에서 바이너리만 꺼내 ~/.local/bin 에 설치 (같은 tarball 에 여러 개면 이름 추가: uv uvx)
+install_bin(){ # name url [extra names...]
+  local tmp url=$2 n; tmp=$(mktemp -d)
+  curl -fsSL "$url" | tar xz -C "$tmp"
+  for n in "$1" "${@:3}"; do
+    find "$tmp" -type f -name "$n" -perm -u+x | head -1 | xargs -I{} install -m755 {} "$LOCAL_BIN/$n"
+  done
   rm -rf "$tmp"
 }
 
@@ -34,8 +36,8 @@ if [ "$OS" = Darwin ]; then
   # ---------- macOS: Homebrew ----------
   for b in /opt/homebrew/bin/brew /usr/local/bin/brew; do [ -x "$b" ] && eval "$("$b" shellenv)" && break; done
   have brew || { echo "Homebrew 필요: https://brew.sh 의 설치 명령 실행 후 다시 시도"; exit 1; }
-  log "brew: starship atuin zoxide fzf gh coreutils"
-  brew list --formula starship atuin zoxide fzf gh coreutils >/dev/null 2>&1 || brew install -q starship atuin zoxide fzf gh coreutils
+  log "brew: starship atuin zoxide fzf gh uv coreutils"
+  brew list --formula starship atuin zoxide fzf gh uv coreutils >/dev/null 2>&1 || brew install -q starship atuin zoxide fzf gh uv coreutils
 else
   # ---------- Linux ----------
   if ! have zsh || ! have git || ! have curl; then
@@ -60,6 +62,7 @@ else
   have atuin    || { log atuin;                                       install_bin atuin    "https://github.com/atuinsh/atuin/releases/latest/download/atuin-$rust-unknown-linux-gnu.tar.gz"; }
   have zoxide   || { log zoxide;   v=$(latest_tag ajeetdsouza/zoxide); install_bin zoxide   "https://github.com/ajeetdsouza/zoxide/releases/download/v$v/zoxide-$v-$rust-unknown-linux-musl.tar.gz"; }
   have gh       || { log gh;       v=$(latest_tag cli/cli);            install_bin gh       "https://github.com/cli/cli/releases/download/v$v/gh_${v}_linux_$go.tar.gz"; }
+  have uv       || { log uv;                                          install_bin uv       "https://github.com/astral-sh/uv/releases/latest/download/uv-$rust-unknown-linux-musl.tar.gz" uvx; }
 fi
 
 # ---------- zsh 플러그인 ----------
