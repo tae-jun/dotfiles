@@ -59,7 +59,10 @@ else
   fzf_ok(){ have fzf && [ "$(fzf --version | cut -d. -f2)" -ge 48 ]; }
   fzf_ok        || { log fzf;      v=$(latest_tag junegunn/fzf);      install_bin fzf      "https://github.com/junegunn/fzf/releases/download/v$v/fzf-$v-linux_$go.tar.gz"; }
   have starship || { log starship;                                    install_bin starship "https://github.com/starship/starship/releases/latest/download/starship-$rust-unknown-linux-musl.tar.gz"; }
-  have atuin    || { log atuin;                                       install_bin atuin    "https://github.com/atuinsh/atuin/releases/latest/download/atuin-$rust-unknown-linux-gnu.tar.gz"; }
+  # atuin 은 musl(정적) 빌드로. gnu 빌드는 GLIBC 2.38+ 를 요구해서 Ubuntu 22.04 이하에서 실행이 안 됨.
+  # 옛 버전이 깔아둔 gnu 바이너리는 있어도 실행이 안 되므로 have 가 아니라 실제 실행 여부로 판단
+  atuin_ok(){ have atuin && atuin --version >/dev/null 2>&1; }
+  atuin_ok      || { log atuin;                                       install_bin atuin    "https://github.com/atuinsh/atuin/releases/latest/download/atuin-$rust-unknown-linux-musl.tar.gz"; }
   have zoxide   || { log zoxide;   v=$(latest_tag ajeetdsouza/zoxide); install_bin zoxide   "https://github.com/ajeetdsouza/zoxide/releases/download/v$v/zoxide-$v-$rust-unknown-linux-musl.tar.gz"; }
   have gh       || { log gh;       v=$(latest_tag cli/cli);            install_bin gh       "https://github.com/cli/cli/releases/download/v$v/gh_${v}_linux_$go.tar.gz"; }
   have uv       || { log uv;                                          install_bin uv       "https://github.com/astral-sh/uv/releases/latest/download/uv-$rust-unknown-linux-musl.tar.gz" uvx; }

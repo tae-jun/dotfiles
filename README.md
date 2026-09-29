@@ -96,6 +96,7 @@ export DATA_ROOT=/mnt/data
 | macOS: `l` 이 `ls -AFlhG` 로 잡힘 | coreutils 미설치 | `brew install coreutils` 후 새 셸 |
 | 로그인 셸은 바뀌었는데 여전히 bash | 현재 세션은 안 바뀜 | `exec zsh` 또는 재접속 |
 | ↑ 가 atuin 을 안 띄움 | 옛 `.zshrc` | 스크립트 재실행 후 `exec zsh` |
+| ``atuin: ... version `GLIBC_2.38' not found`` | 옛 스크립트가 깐 gnu 빌드 (Ubuntu 22.04 이하에서 실행 불가) | 스크립트 재실행. 실행 안 되는 atuin 을 감지해 musl(정적) 빌드로 교체함 |
 | `gh auth login` 이 안 뜸 | tty 없이 실행됨 | 직접 `gh auth login` |
 | 입력이 깨짐 (`claude` → `claudeuud`) | 서버에 `$TERM` terminfo 없음 (Ghostty 등) | 스크립트 재실행 후 재접속. zshrc 도 없는 TERM 은 xterm-256color 로 fallback 함. 원본을 원하면 로컬에서 `infocmp -x xterm-ghostty \| ssh 서버 -- tic -x -` |
 
